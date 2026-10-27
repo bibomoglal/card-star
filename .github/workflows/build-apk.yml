@@ -17,7 +17,8 @@ jobs:
       - name: Allow HTTP to the router
         run: |
           sed -i 's/<application/<application android:usesCleartextTraffic="true"/' android/app/src/main/AndroidManifest.xml
-          grep -n usesCleartextTraffic android/app/src/main/AndroidManifest.xml
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#&\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />#' android/app/src/main/AndroidManifest.xml
+          cat android/app/src/main/AndroidManifest.xml
       - name: Set app icon
         run: |
           pip install pillow
