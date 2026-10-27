@@ -457,9 +457,10 @@ function isNative(){return !!(window.Capacitor&&Capacitor.isNativePlatform&&Capa
 function blobB64(b){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(String(r.result).split(',')[1])};r.onerror=rej;r.readAsDataURL(b)})}
 async function saveFile(blob,name){
  var P=window.Capacitor&&Capacitor.Plugins;
- if(isNative()&&P&&P.Filesystem&&P.Share){
-  var w=await P.Filesystem.writeFile({path:name,data:await blobB64(blob),directory:'CACHE'});
-  try{await P.Share.share({title:name,url:w.uri,dialogTitle:'حفظ أو طباعة الملف'})}catch(e){}
+ if(isNative()&&P&&P.Filesystem){
+  var d64=await blobB64(blob);
+  try{await P.Filesystem.requestPermissions()}catch(e){}
+  await P.Filesystem.writeFile({path:'BrightStar/'+name,data:d64,directory:'DOCUMENTS',recursive:true});
   return}
  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},60000)}
 function dlBlob(blob){return saveFile(blob,'bright-star-cards.pdf')}
@@ -471,7 +472,7 @@ $('pr').onclick=async function(){
  msg.textContent='جاري التجهيز...';
  try{
   var blob=$('mode').value=='html'?await pdfHtml():makePdf();LB=blob;await dlBlob(blob);
-  msg.textContent='تم تجهيز الملف. افتحه واطبعه بـ Scale 100%.';
+  msg.textContent=(isNative()?'تم الحفظ في Documents/BrightStar. ':'')+'تم تجهيز الملف. افتحه واطبعه بـ Scale 100%.';
   try{var f=new File([blob],'bright-star-cards.pdf',{type:'application/pdf'});if(!isNative()&&navigator.canShare&&navigator.canShare({files:[f]}))$('shr').hidden=false}catch(e){}
  }catch(e){msg.textContent='حصلت مشكلة في الحفظ: '+((e&&e.message)||e)}
 };
