@@ -679,6 +679,14 @@ body:not(.nopv) #toast{bottom:calc(178px + env(safe-area-inset-bottom,0px))}
 .top #zo,.top #zi,.top #pr{display:none!important}
 #pv{touch-action:pan-x pan-y}
 .top h1 .lg{order:3;width:46px;height:46px;flex:none;border-radius:50%;border:2px solid #fff;box-shadow:0 8px 18px rgba(58,47,176,.22)}
+
+#apbar{flex:none;position:relative;z-index:16;margin:0 12px 8px;padding:10px 12px;background:var(--card);border:1px solid var(--bd);border-radius:22px;box-shadow:0 8px 24px rgba(30,40,110,.18)}
+#apbar[hidden]{display:none}
+#apbar .apt{font-size:13px;font-weight:bold;text-align:center;margin-bottom:8px;color:var(--tx)}
+#apbar .apb{display:flex;gap:8px}
+#apbar .apb button{margin:0;min-height:44px;font-size:15px;flex:1}
+#apbar #ap_ok{flex:2}
+body.isrt #apbar,body.booting #apbar{display:none}
 </style>
 </head>
 <body class="booting">
@@ -936,6 +944,7 @@ body:not(.nopv) #toast{bottom:calc(178px + env(safe-area-inset-bottom,0px))}
 <button class="tab" id="lang" type="button"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg><span>العربية</span></button>
 <button class="tab lgo" id="lgo" type="button"><svg class="i" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h10"/></svg><span>Log out</span></button></div>
 
+<div id="apbar" hidden><div class="apt">You have unapplied card changes</div><div class="apb"><button type="button" class="ghost" id="ap_no">Discard</button><button type="button" id="ap_ok">Apply</button></div></div>
 <nav id="bnav" aria-label="Navigation">
 <button class="bn" type="button" data-s="dash"><span class="bi"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span><span>Home</span></button>
 <button class="bn" type="button" data-s="manage"><span class="bi"><svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 11a3 3 0 1 0 0-6M21 20c0-2.6-1.7-4.8-4-5.6"/></svg></span><span>Cards</span></button>
@@ -1022,7 +1031,13 @@ function rgbaS(h,a){var c=hex(h);return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')'
 function STYV(S,ch,col){return '--hh:'+S.hh*100+'%;--ih:'+S.ih*100+'%;--lh:'+S.lh*100+'%;--hc:'+(S.hc||col)+';--ht:'+S.ht+';--hl:'+S.hl+';--ic:'+(S.ic||col)+';--it:'+S.it+';--lg:'+(S.lg||col)+';--lt:'+S.lt+';--lc:'+S.lc+';--kt:'+S.kt+';--kbg:'+rgbaS(S.kbg,.6)+';--kb:'+(S.kb||col)+';--qb:'+(S.qb||col)+';--bc:'+(S.bc||col)+';--bw0:'+S.bw+'mm;--rad:'+S.rad+'mm;--b1:'+S.b1+';--b2:'+S.b2+';--wmo:'+S.wmo+';--oy:'+(S.oy*ch)+'mm;'}
 function STYC(S){return (S.wm?'':' nwm')+(S.kd?'':' nd')+(S.h?'':' nh')+(S.i?'':' ni')+(S.l?'':' nl')}
 function selSet(el,v){if(el.tagName==='SELECT'&&v&&!Array.prototype.some.call(el.options,function(o){return o.value===v})){var o=document.createElement('option');o.value=v;o.textContent=iso(v);el.appendChild(o)}el.value=v}
-function save(){try{var o={};ids.forEach(function(i){if(i==='codes'||(i==='r_pass'&&(!$('r_save').checked||secOK)))return;o[i]=$(i).type=='checkbox'?$(i).checked:$(i).value});localStorage.setItem('bs_cards',JSON.stringify(o))}catch(e){}secSave()}
+/* Card design edits are drafts: they show live in the preview but are only saved when Apply is pressed. */
+var DSNAP=null,DIDS=null,NOD=['codes','inf','d1','d2','d3','g_n','g_len','g_type','g_pre','g_avoid','g_add','r_host','r_port','r_user','r_pass','r_save','r_prof','r_nopw','r_srv','r_cmt'];
+function dGet(i){var e=$(i);return e.type=='checkbox'?e.checked:e.value}
+function dSnap(){DIDS=ids.filter(function(i){return NOD.indexOf(i)<0});DSNAP={};DIDS.forEach(function(i){DSNAP[i]=dGet(i)});dBar()}
+function dDirty(){if(!DSNAP)return false;return DIDS.some(function(i){return dGet(i)!==DSNAP[i]})}
+function dBar(){var b=$('apbar');if(b)b.hidden=!dDirty()}
+function save(){try{var o={};ids.forEach(function(i){if(i==='codes'||(i==='r_pass'&&(!$('r_save').checked||secOK)))return;if(DSNAP&&i in DSNAP){o[i]=DSNAP[i];return}o[i]=$(i).type=='checkbox'?$(i).checked:$(i).value});localStorage.setItem('bs_cards',JSON.stringify(o))}catch(e){}secSave()}
 function load(){try{var o=JSON.parse(localStorage.getItem('bs_cards')||'null');if(o)ids.forEach(function(i){if(i!=='codes'&&i in o){if($(i).type=='checkbox')$(i).checked=o[i];else selSet($(i),o[i])}})}catch(e){}}
 /* Router password: stored encrypted with the Android Keystore (SecureStore plugin), never in localStorage on the phone. */
 var SSP=null,secOK=false,secReady=false,lastSec=null;
@@ -1935,7 +1950,7 @@ $('bk_f').onchange=function(){
     ha.sort(function(a,b){return b.t-a.t});if(ha.length>300)ha.length=300;hput(ha);hrender()}
    if(j.sales&&j.sales.m){var s1=sget()||{m:{},b:j.sales.b||Date.now()};Object.keys(j.sales.m).forEach(function(k){if(!s1.m[k])s1.m[k]=j.sales.m[k]});if(j.sales.b&&j.sales.b<s1.b)s1.b=j.sales.b;sput(s1)}
    if(j.devices&&typeof j.devices==='object'){var d0=dlGet();Object.keys(j.devices).forEach(function(k){d0[k]=j.devices[k]});dlPut(d0)}
-   if(j.settings&&typeof j.settings==='object'){var cur={};try{cur=JSON.parse(localStorage.getItem('bs_cards')||'{}')||{}}catch(e){}Object.keys(j.settings).forEach(function(k){if(k!=='r_pass')cur[k]=j.settings[k]});localStorage.setItem('bs_cards',JSON.stringify(cur));load();render()}
+   if(j.settings&&typeof j.settings==='object'){var cur={};try{cur=JSON.parse(localStorage.getItem('bs_cards')||'{}')||{}}catch(e){}Object.keys(j.settings).forEach(function(k){if(k!=='r_pass')cur[k]=j.settings[k]});localStorage.setItem('bs_cards',JSON.stringify(cur));load();dSnap();render()}
    bkMsg('Restored: '+na+' archived cards, '+np+' plans, '+nh+' new batches.')
   }catch(e){bkMsg('Could not restore: '+((e&&e.message)||e))}
   inp.value=''};
@@ -1982,7 +1997,7 @@ $('lgo').onclick=function(){if(!confirm('Log out of the router? The saved passwo
  $('menu').hidden=true;$('mbk').hidden=true;$('mn').setAttribute('aria-expanded','false');
  $('r_pass').value='';save();RC=false;DOK=false;DH=[];WF=0;setRst(false,'Disconnected');
  $('rmsg').textContent='Logged out.';if(window.openSec)window.openSec('router')};
-load();render();hrender();prender();
+load();dSnap();render();hrender();prender();
 setTimeout(function(){if(document.body.classList.contains('booting')&&window.openSec)window.openSec('router')},6000);
 (async function(){
  await secLoad();
@@ -2015,6 +2030,15 @@ function upd(){var b=g('pvprint'),c=g('codes'),t=g('toast');if(!b||!c||document.
  if(t){if(!b.hidden){var r=b.getBoundingClientRect();if(r.height)t.style.bottom=Math.round(window.innerHeight-r.top+10)+'px'}else t.style.bottom=''}}
 g('pvprint').onclick=function(){g('pr').click()};
 setInterval(upd,600);upd();})();
+</script>
+<script>
+/* Card design: Apply / Discard */
+(function(){
+ function toast(t){var m=$('msg');if(m)m.textContent=t}
+ $('ap_ok').onclick=function(){DSNAP=null;dSnap();save();dBar();toast('Card changes applied.')};
+ $('ap_no').onclick=function(){if(!DSNAP)return;DIDS.forEach(function(i){var e=$(i);if(e.type=='checkbox')e.checked=DSNAP[i];else selSet(e,DSNAP[i])});render();dBar();toast('Changes discarded.')};
+ document.addEventListener('input',dBar);document.addEventListener('change',dBar);
+})();
 </script>
 <script src="i18n-ar.js"></script>
 </body>
