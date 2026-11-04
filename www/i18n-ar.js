@@ -436,7 +436,7 @@
   st.textContent = [
     'html.ar body{text-align:right}',
     'html.ar input[dir="ltr"],html.ar textarea,html.ar .mono,html.ar #m_list .gen div:first-child{direction:ltr;text-align:left}',
-    'html.ar #menu{left:auto;right:10px}',
+    'html.ar #menu{left:12px;right:auto}',
     'html.ar .tab{text-align:right}',
     'html.ar .info,html.ar label{text-align:right}',
     'html.ar .page,html.ar #pv{direction:ltr}',
