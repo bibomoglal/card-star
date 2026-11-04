@@ -644,7 +644,7 @@ body.isrt #sheet{background:transparent}
 .qn{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
 .qn button{min-height:42px;margin:0;padding:0;font-size:15px}
 .qn button.on{background:var(--grad);color:#fff}
-.qsum{text-align:center;font-weight:800;font-size:19px;margin-top:12px;color:var(--ac);direction:ltr;min-height:1.4em}
+.qsum{display:none!important;text-align:center;font-weight:800;font-size:19px;margin-top:12px;color:var(--ac);direction:ltr;min-height:1.4em}
 .qa{position:sticky;bottom:0;z-index:6;margin:12px -14px -16px;padding:26px 14px calc(14px + 0px);background:linear-gradient(180deg,transparent,var(--bg) 26%)}
 .qa .info{margin:0 0 8px;text-align:center}.qa .info:empty{display:none}
 .qa button{margin-top:8px}.qa button:first-of-type{margin-top:0}
@@ -1004,13 +1004,10 @@ var SS=[
    else h+='<div class="sr"><label><span>'+lb+'</span></label><input type="text" id="'+id+'" value="'+d+'"></div>';
    ids.push(id);if(t=='color'&&d===null)ids.push(id+'_a')});
   h+='</details>'});
- h+='<button type="button" class="ghost" id="s_reset">Reset card style</button>';
  box.innerHTML='<div class="rt-card"><div class="rt-ch"><div class="rt-ic2"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h8M18 6h2M4 12h2M10 12h10M4 18h10M18 18h2"/><circle cx="15" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="18" r="2"/></svg></div><div class="t"><b>Card style</b><span>Control the color, size and position of every part</span></div></div>'+h+'</div>';
  SS.forEach(function(g){g[1].forEach(function(r){if(r[2]!='color'||r[3]!==null)return;var c=document.getElementById(r[0]),a=document.getElementById(r[0]+'_a');
   c.addEventListener('input',function(){a.checked=false});
   a.addEventListener('change',function(){if(!a.checked)c.value=document.getElementById('col').value})})});
- document.getElementById('s_reset').onclick=function(){SS.forEach(function(g){g[1].forEach(function(r){var e=document.getElementById(r[0]);
-  if(r[2]=='check')e.checked=!!r[3];else if(r[2]=='color'){if(r[3]===null){document.getElementById(r[0]+'_a').checked=true}else e.value=r[3]}else e.value=r[3]})});render()};
 })();
 function sg(id){var e=$(id);if(!e)return null;if(e.type=='checkbox')return e.checked;if(e.type=='color'){var a=$(id+'_a');return a&&a.checked?null:e.value}if(e.type=='range')return +e.value;return e.value}
 function sUi(){SS.forEach(function(g){g[1].forEach(function(r){if(r[2]=='range'){var e=$(r[0]),v=$(r[0]+'_v');if(e&&v)v.textContent=e.value+r[7]}})})}
